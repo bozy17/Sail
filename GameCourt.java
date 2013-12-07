@@ -6,6 +6,11 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.util.ArrayList;
 
@@ -28,17 +33,23 @@ public class GameCourt extends JPanel {
 	private Wind wind;           // the wind that affects the sailboat
 	private Land land;			 // the land on the map
 	
+	private Treasure treasure;       // the treasure that must be collected in order to pass
+								     // through the gate
+	private boolean tIsCol = false;  // check if the treasure has been collected
+	
 	public boolean playing = false;  // whether the game is running
 	private JLabel status;       // Current status text (i.e. Running...)
 	
-	public boolean keyPressed = false; //check if the user is pressing an arrow key
-
 	// Game constants
-	public static final int COURT_WIDTH = 600;
-	public static final int COURT_HEIGHT = 600;
+	public static final int COURT_WIDTH = 800;
+	public static final int COURT_HEIGHT = 800;
 	public static final double BOAT_VELOCITY = 2;
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 35; 
+	
+	//the background picture
+	public static final String img_file = "seawater.jpg";
+	public static BufferedImage img = null;
 
 	public GameCourt(JLabel status){
 		// creates border around the court area, JComponent method
@@ -69,38 +80,49 @@ public class GameCourt extends JPanel {
 		addKeyListener(new KeyAdapter(){
 			public void keyPressed(KeyEvent e){
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					boat.v_x = -BOAT_VELOCITY;
+					if (Math.abs(boat.v_x) > BOAT_VELOCITY) {
+						boat.v_x = .95 * boat.v_x;
+					} else{
+						boat.v_x = -BOAT_VELOCITY;
+					}
 //					boat.v_y = 0;
 					boat.width = 20;
 					boat.height = 10;
-					keyPressed = true;
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-					boat.v_x = BOAT_VELOCITY;
+					if (Math.abs(boat.v_x) > BOAT_VELOCITY) {
+						boat.v_x = .95 * boat.v_x;
+					} else{
+						boat.v_x = BOAT_VELOCITY;
+					}
 //					boat.v_y = 0;
 					boat.width = 20;
 					boat.height = 10;
-					keyPressed = true;
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-					boat.v_y = BOAT_VELOCITY;
+					if (Math.abs(boat.v_y) > BOAT_VELOCITY) {
+						boat.v_y = .95 * boat.v_y;
+					} else{
+						boat.v_y = BOAT_VELOCITY;
+					}
 //					boat.v_x = 0;
 					boat.width = 10;
 					boat.height = 20;
-					keyPressed = true;
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP) {
-					boat.v_y = -BOAT_VELOCITY;
+					if (Math.abs(boat.v_y) > BOAT_VELOCITY) {
+						boat.v_y = .95 * boat.v_y;
+					} else{
+						boat.v_y = -BOAT_VELOCITY;
+					}
 //					boat.v_x = 0;
 					boat.width = 10;
 					boat.height = 20;
-					keyPressed = true;
 				}
 			}
 			public void keyReleased(KeyEvent e){
-				boat.v_x = 0;
-				boat.v_y = 0;
-				keyPressed = false;
+//				boat.v_x = 0;
+//				boat.v_y = 0;
 			}
 		});
 		
@@ -113,11 +135,12 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 
-		boat = new Boat(COURT_WIDTH, COURT_HEIGHT);
+		boat = new Boat(500, 100, COURT_WIDTH, COURT_HEIGHT);
 		pirate = new Pirate(100, 300, 2, -1, COURT_WIDTH, COURT_HEIGHT);
-		levelgate = new LevelGate(COURT_WIDTH, COURT_HEIGHT);
-		wind = new Wind(200, 300, 20, 20, COURT_WIDTH, COURT_HEIGHT);
-		land = new Land(COURT_WIDTH, COURT_HEIGHT);
+		levelgate = new LevelGate(10, 10, COURT_WIDTH, COURT_HEIGHT);
+		wind = new Wind(200, 400, 100, 100, -2, 0, COURT_WIDTH, COURT_HEIGHT);
+		land = new Land(200, 0, 200, 400, COURT_WIDTH, COURT_HEIGHT);
+		treasure = new Treasure(500, 500, COURT_WIDTH, COURT_HEIGHT);
 
 		playing = true;
 		status.setText("Running...");
@@ -133,17 +156,17 @@ public class GameCourt extends JPanel {
 	void tick(){
 		if (playing) {
 			// advance the boat and pirate in their
-			// current direction. Slows gradually to 1
-//			if (Math.abs(boat.v_x) > 1) {
-//				boat.v_x = .95 * boat.v_x;
+			// current direction.
+//			if (boat.intersects(wind)) {
+//				boat.v_x = boat.v_x + wind.v_x;
+//				boat.v_y = boat.v_y + wind.v_y;
 //			}
-//			if (Math.abs(boat.v_y) > 1) {
-//				boat.v_y = .95 * boat.v_y;
-//			}
-			if (boat.intersects(wind)) {
-				boat.v_x = boat.v_x + wind.v_x;
-				boat.v_y = boat.v_y + wind.v_y;
-			}
+			
+			//change the direction the boat faces
+			
+			
+			
+			
 			
 			boat.move();
 			pirate.move();
@@ -152,6 +175,8 @@ public class GameCourt extends JPanel {
 			pirate.bounce(pirate.hitWall());
 			// ...and the levelgate
 			pirate.bounce(pirate.hitObj(levelgate));
+			// ...and land
+			pirate.bounce(pirate.hitObj(land));
 		
 			// check for the game end conditions
 			if (boat.intersects(levelgate)) { 
@@ -166,23 +191,44 @@ public class GameCourt extends JPanel {
 				status.setText("You crashed");
 			}
 			
+			//check if the boat has collected the treasure
+			if (boat.intersects(treasure)) {
+				tIsCol = true;
+			}
+			
 			// update the display
 			repaint();
 		} 
 	}
 
+	
+	//only repaints the things that are being updated
 	@Override 
 	public void paintComponent(Graphics g){
-		super.paintComponent(g);
+		try {
+			if (img == null) {
+				img = ImageIO.read(new File(img_file));
+			} 
+		} catch (IOException e) {
+				System.out.println("Internal Error: " + e.getMessage());
+		}
+		g.drawImage(img, 0, 0, null);
 		pirate.draw(g);
 		levelgate.draw(g);
 		wind.draw(g);
 		land.draw(g);
 		boat.draw(g);
+		if (!tIsCol) {
+			treasure.draw(g);
+		}
 	}
 
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(COURT_WIDTH,COURT_HEIGHT);
+	}
+
+	public void setBackground(BufferedImage img) {
+		
 	}
 }

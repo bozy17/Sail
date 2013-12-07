@@ -21,12 +21,12 @@ public class GameObj {
 	 *  0 <= pos_x <= max_x 
 	 *  0 <= pos_y <= max_y 
 	 */
-	public int pos_x; 
-	public int pos_y;
+	public double pos_x; 
+	public double pos_y;
 
 	/** Size of object, in pixels */
-	public int width;
-	public int height;
+	public double width;
+	public double height;
 	
 	/** Velocity: number of pixels to move every time move() is called */
 	public double v_x;
@@ -36,25 +36,25 @@ public class GameObj {
 	 *    Maximum permissible x, y positions for the upper-left 
 	 *    hand corner of the object
 	 */
-	public int max_x;
-	public int max_y;
+	public double max_x;
+	public double max_y;
 
 	/**
 	 * Constructor
 	 */
-	public GameObj(double v_x, double v_y, int pos_x, int pos_y, 
-		int width, int height, int court_width, int court_height){
+	public GameObj(double v_x, double v_y, double pos_x, double pos_y, 
+		double width2, double height2, double court_width, double court_height){
 		this.v_x = v_x;
 		this.v_y = v_y;
 		this.pos_x = pos_x;
 		this.pos_y = pos_y;
-		this.width = width;
-		this.height = height;
+		this.width = width2;
+		this.height = height2;
 		
 		// take the width and height into account when setting the 
 		// bounds for the upper left corner of the object.
-		this.max_x = court_width - width;
-		this.max_y = court_height - height;
+		this.max_x = court_width - width2;
+		this.max_y = court_height - height2;
 
 	}
 

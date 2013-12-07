@@ -7,6 +7,11 @@
 // imports necessary libraries for Java swing
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /** 
@@ -14,6 +19,7 @@ import javax.swing.*;
  * Main class that specifies the frame and widgets of the GUI
  */
 public class Game implements Runnable {
+	
     public void run(){
         // NOTE : recall that the 'final' keyword notes inmutability
 		  // even for local variables. 
@@ -26,30 +32,21 @@ public class Game implements Runnable {
 		  // Status panel
         final JPanel status_panel = new JPanel();
         frame.add(status_panel, BorderLayout.SOUTH);
-        final JLabel status = new JLabel("Running...");
+        final JLabel status = new JLabel("Sailing...");
         status_panel.add(status);
+        
+        // Score panel with treasure collected and timer
+        JPanel score_panel = new JPanel();
+        frame.add(score_panel, BorderLayout.NORTH);
+        JLabel treasureCollected = new JLabel("Treasure Collected: 0");
+        score_panel.add(treasureCollected);
+        JLabel timer = new JLabel("30");
+        score_panel.add(timer);
 
         // Main playing area
         final GameCourt court = new GameCourt(status);
         frame.add(court, BorderLayout.CENTER);
-        court.setBackground(Color.BLUE);
 
-        // Reset button
-        final JPanel control_panel = new JPanel();
-        frame.add(control_panel, BorderLayout.NORTH);
-
-        // Note here that when we add an action listener to the reset
-        // button, we define it as an anonymous inner class that is 
-        // an instance of ActionListener with its actionPerformed() 
-        // method overridden. When the button is pressed,
-        // actionPerformed() will be called.
-        final JButton reset = new JButton("Reset");
-        reset.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    court.reset();
-                }
-            });
-        control_panel.add(reset);
 
         // Put the frame on the screen
         frame.pack();

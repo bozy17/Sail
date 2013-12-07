@@ -3,21 +3,19 @@ import java.awt.Graphics;
 
 
 public class Land extends GameObj {
-
-	public static final int POS_X = 500;
-	public static final int POS_Y = 200;
-	public static final int WIDTH = 100;
-	public static final int HEIGHT = 200;
 	
-	public Land(int court_width, int court_height) {
-		super(0, 0, POS_X, POS_Y, WIDTH, HEIGHT, 
+	//land object that can be changed depending on the level 
+	public Land(double pos_x, double pos_y, double width, double height, 
+			    double court_width, double court_height) {
+		super(0, 0, pos_x, pos_y, width, height, 
 				court_width, court_height);
 	}
 
 	@Override
 	public void draw(Graphics g) {
-		g.setColor(Color.GREEN);
-		g.fillRect(POS_X, POS_Y, WIDTH, HEIGHT);
+		Color dark_green = new Color(0, 100, 0);
+		g.setColor(dark_green);
+		g.fillRect((int)pos_x, (int)pos_y, (int)width, (int)height);
 	}
 
 	
