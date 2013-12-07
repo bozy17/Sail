@@ -10,8 +10,8 @@ public class Treasure extends GameObj {
 	
 	public static final String img_file = "treasure.png";
 	public static BufferedImage img;
-	public static double WIDTH = 15;
-	public static double HEIGHT = 10;
+	public static double WIDTH = 25;
+	public static double HEIGHT = 20;
 
 	public Treasure(double pos_x, double pos_y, double court_width, 
 					double court_height) {

@@ -36,6 +36,10 @@ public class GameCourt extends JPanel {
 	private Treasure treasure;       // the treasure that must be collected in order to pass
 								     // through the gate
 	private boolean tIsCol = false;  // check if the treasure has been collected
+	private JLabel treasureCollected;
+	
+	private JLabel countdown;        //timer to keep the players score
+	private float ellapsedTime = 30;
 	
 	public boolean playing = false;  // whether the game is running
 	private JLabel status;       // Current status text (i.e. Running...)
@@ -51,10 +55,10 @@ public class GameCourt extends JPanel {
 	public static final String img_file = "seawater.jpg";
 	public static BufferedImage img = null;
 
-	public GameCourt(JLabel status){
+	public GameCourt(JLabel status, JLabel treasureCollected, final JLabel countdown){
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        
+		
         // The timer is an object which triggers an action periodically
         // with the given INTERVAL. One registers an ActionListener with
         // this timer, whose actionPerformed() method will be called 
@@ -88,6 +92,9 @@ public class GameCourt extends JPanel {
 //					boat.v_y = 0;
 					boat.width = 20;
 					boat.height = 10;
+					
+					//start everything if the game hasn't already started
+					if (!playing) {playing = true;}
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 					if (Math.abs(boat.v_x) > BOAT_VELOCITY) {
@@ -98,6 +105,9 @@ public class GameCourt extends JPanel {
 //					boat.v_y = 0;
 					boat.width = 20;
 					boat.height = 10;
+					
+					//start everything if the game hasn't already started
+					if (!playing) {playing = true;}
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 					if (Math.abs(boat.v_y) > BOAT_VELOCITY) {
@@ -108,6 +118,9 @@ public class GameCourt extends JPanel {
 //					boat.v_x = 0;
 					boat.width = 10;
 					boat.height = 20;
+					
+					//start everything if the game hasn't already started
+					if (!playing) {playing = true;}
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP) {
 					if (Math.abs(boat.v_y) > BOAT_VELOCITY) {
@@ -118,6 +131,9 @@ public class GameCourt extends JPanel {
 //					boat.v_x = 0;
 					boat.width = 10;
 					boat.height = 20;
+					
+					//start everything if the game hasn't already started
+					if (!playing) {playing = true;}
 				}
 			}
 			public void keyReleased(KeyEvent e){
@@ -129,6 +145,8 @@ public class GameCourt extends JPanel {
 		
 
 		this.status = status;
+		this.treasureCollected = treasureCollected;
+		this.countdown = countdown;
 	}
 
 	/** (Re-)set the state of the game to its initial state.
@@ -142,8 +160,10 @@ public class GameCourt extends JPanel {
 		land = new Land(200, 0, 200, 400, COURT_WIDTH, COURT_HEIGHT);
 		treasure = new Treasure(500, 500, COURT_WIDTH, COURT_HEIGHT);
 
-		playing = true;
-		status.setText("Running...");
+		playing = false;
+		status.setText("Sailing...                      ");
+		treasureCollected.setText("Treasure Collected: 0");
+		countdown.setText("30 sec");
 
 		// Make sure that this component has the keyboard focus
 		requestFocusInWindow();
@@ -166,7 +186,14 @@ public class GameCourt extends JPanel {
 			
 			
 			
-			
+			//make the countdown start and end
+			ellapsedTime -= .035;
+			countdown.setText(Float.toString(ellapsedTime) + " sec");
+			if (ellapsedTime <= 0) {
+				playing = false;
+				countdown.setText("0 sec");
+				
+			}
 			
 			boat.move();
 			pirate.move();
@@ -179,21 +206,24 @@ public class GameCourt extends JPanel {
 			pirate.bounce(pirate.hitObj(land));
 		
 			// check for the game end conditions
-			if (boat.intersects(levelgate)) { 
+			if (boat.intersects(levelgate) && tIsCol) { 
 				playing = false;
-				status.setText("Next Level!");
-
+				status.setText("Next Level!                      ");
+			} else if (boat.intersects(levelgate)) {
+				status.setText("You must collect the treasure to pass" +
+						"through the level gate!                      ");
 			} else if (boat.intersects(pirate)) {
 				playing = false;
-				status.setText("You Were Destoyed!");
+				status.setText("You Were Destoyed!                      ");
 			} else if (boat.intersects(land)) {
 				playing = false;
-				status.setText("You crashed");
+				status.setText("You crashed                      ");
 			}
 			
 			//check if the boat has collected the treasure
 			if (boat.intersects(treasure)) {
 				tIsCol = true;
+				treasureCollected.setText("Treasure Collected: 1");
 			}
 			
 			// update the display

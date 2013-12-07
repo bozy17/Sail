@@ -29,22 +29,25 @@ public class Game implements Runnable {
         final JFrame frame = new JFrame("Sail");
         frame.setLocation(300,300);
 
-		  // Status panel
-        final JPanel status_panel = new JPanel();
+		// Status panel
+        JPanel status_panel = new JPanel();
         frame.add(status_panel, BorderLayout.SOUTH);
-        final JLabel status = new JLabel("Sailing...");
+        JLabel status = new JLabel("Sailing...                      ");
         status_panel.add(status);
+        // treasure collected
+        JLabel treasureCollected = new JLabel("Treasure Collected: 0");
+        status_panel.add(treasureCollected);
         
-        // Score panel with treasure collected and timer
+        // Score panel 
         JPanel score_panel = new JPanel();
         frame.add(score_panel, BorderLayout.NORTH);
-        JLabel treasureCollected = new JLabel("Treasure Collected: 0");
-        score_panel.add(treasureCollected);
-        JLabel timer = new JLabel("30");
-        score_panel.add(timer);
+        // countdown
+        JLabel countdown = new JLabel("30");
+        score_panel.add(countdown);
 
         // Main playing area
-        final GameCourt court = new GameCourt(status);
+        final GameCourt court = new GameCourt(status, treasureCollected,
+        		countdown);
         frame.add(court, BorderLayout.CENTER);
 
 
