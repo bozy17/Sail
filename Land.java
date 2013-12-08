@@ -15,7 +15,12 @@ public class Land extends GameObj {
 	public void draw(Graphics g) {
 		Color dark_green = new Color(0, 100, 0);
 		g.setColor(dark_green);
-		g.fillRect((int)pos_x, (int)pos_y, (int)width, (int)height);
+		g.fillRoundRect((int)pos_x, (int)pos_y, (int)width, (int)height, 20, 20);
+		
+		//create the look of a beach
+		Color sand = new Color(238, 214, 175);
+		g.setColor(sand);
+		g.drawRoundRect((int)pos_x, (int)pos_y, (int)width, (int)height, 20, 20);
 	}
 
 	

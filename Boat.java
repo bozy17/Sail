@@ -22,15 +22,6 @@ public class Boat extends GameObj {
 		//will be different for each level
 		super(0, 0, pos_x, pos_y, 
 				WIDTH, HEIGHT, court_width, court_height);
-		
-		//use picture later
-		/* try {
-			if (img == null) {
-				img = ImageIO.read(new File(img_file));
-			} 
-		} catch (IOException e) {
-				System.out.println("Internal Error:" + e.getMessage());
-		} */
 	}
 	
 	@Override
@@ -38,8 +29,9 @@ public class Boat extends GameObj {
 		g.setColor(Color.WHITE);
 		g.fillOval((int)pos_x, (int)pos_y, (int)width, (int)height);
 		
-		//use picture later
-		//g.drawImage(img, pos_x, pos_y, width, height, null); 
+		// create a border for the boat
+		g.setColor(Color.BLACK);
+		g.drawOval((int)pos_x, (int)pos_y, (int)width, (int)height);
 	}
 	
 	

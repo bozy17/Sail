@@ -27,7 +27,7 @@ public class Game implements Runnable {
         // Top-level frame in which game components live
 		  // Be sure to change "TOP LEVEL FRAME" to the name of your game
         final JFrame frame = new JFrame("Sail");
-        frame.setLocation(300,300);
+        frame.setLocation(300,100);
 
 		// Status panel
         JPanel status_panel = new JPanel();
@@ -35,7 +35,7 @@ public class Game implements Runnable {
         JLabel status = new JLabel("Sailing...                      ");
         status_panel.add(status);
         // treasure collected
-        JLabel treasureCollected = new JLabel("Treasure Collected: 0");
+        JLabel treasureCollected = new JLabel("Treasure Collected: 0                      ");
         status_panel.add(treasureCollected);
         
         // Score panel 
@@ -49,6 +49,15 @@ public class Game implements Runnable {
         final GameCourt court = new GameCourt(status, treasureCollected,
         		countdown);
         frame.add(court, BorderLayout.CENTER);
+        
+       //reset button
+        final JButton reset = new JButton("Reset");
+        reset.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		court.reset();
+        	}
+        });
+        status_panel.add(reset);
 
 
         // Put the frame on the screen

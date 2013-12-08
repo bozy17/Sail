@@ -17,6 +17,10 @@ public class LevelGate extends GameObj {
 	public void draw(Graphics g) {
 		g.setColor(Color.ORANGE);
 		g.fillOval((int)pos_x, (int)pos_y, (int)width, (int)height);
+		
+		//border
+		g.setColor(Color.BLACK);
+		g.drawOval((int)pos_x, (int)pos_y, (int)width, (int)height);
 	}
 	
 }
