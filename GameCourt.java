@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
 import java.util.ArrayList;
 
 /**
@@ -25,16 +26,18 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("serial")
 public class GameCourt extends JPanel {
+	
+	//the level that is being played
+	private Level level;
 
 	// the state of the game logic
 	private Boat boat;               // the user controlled boat
-//	private CannonBall boatCannon;   //the players cannon
 	private Pirate pirate1;          // the Pirate (enemy), bounces...for now
 	private Pirate pirate2;
-//	private boolean destroyed1 = false;  //for the possibility of a player cannon
-//	private boolean destroyed2 = false;
-	private CannonBall cannonball1;  //the pirate's weapon
+	private Pirate pirate3;
+	private CannonBall cannonball1;  //the pirates' weapon
 	private CannonBall cannonball2;
+	private CannonBall cannonball3;
 	private LevelGate levelgate;     // The Gate to the next level, doesn't move
 	private Wind wind;               // the wind that affects the sailboat
 	private Land land;			     // the land on the map
@@ -45,17 +48,18 @@ public class GameCourt extends JPanel {
 	private JLabel treasureCollected;
 	
 	private JLabel countdown;        //timer to keep the players score
-	private float ellapsedTime = 30;
+	private float ellapsedTime;
 	
 	private int tickcounter = 0;     //count the number of ticks that have happened
 
 	
 	public boolean playing = false;  // whether the game is running
+	public boolean won = false;
 	private JLabel status;           // Current status text (i.e. Running...)
 	
 	// Game constants
-	public static final int COURT_WIDTH = 800;
-	public static final int COURT_HEIGHT = 800;
+	private int COURT_WIDTH = 800;
+	private int COURT_HEIGHT = 800;
 	public static final double BOAT_VELOCITY = 3;
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 35; 
@@ -64,7 +68,10 @@ public class GameCourt extends JPanel {
 	public static final String img_file = "seawater.jpg";
 	public static BufferedImage img = null;
 
-	public GameCourt(JLabel status, JLabel treasureCollected, final JLabel countdown){
+	public GameCourt(JLabel treasureCollected, JLabel countdown,
+			Level level){
+		this.level = level;
+		
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
@@ -108,11 +115,6 @@ public class GameCourt extends JPanel {
 					boat.v_y = -BOAT_VELOCITY;
 					boat.v_x = 0;
 				} 
-				// for the possibility of a player cannon
-//				else if (e.getKeyCode() == KeyEvent.VK_SPACE){
-//					boatCannon = new CannonBall(boat.pos_x, boat.pos_y, boat.v_x,
-//							boat.v_y, COURT_WIDTH, COURT_HEIGHT);
-//				}
 			}
 			public void keyReleased(KeyEvent e){
 
@@ -121,7 +123,6 @@ public class GameCourt extends JPanel {
 		
 		
 
-		this.status = status;
 		this.treasureCollected = treasureCollected;
 		this.countdown = countdown;
 	}
@@ -130,21 +131,22 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 
-		boat = new Boat(700, 100, COURT_WIDTH, COURT_HEIGHT);
-		pirate1 = new Pirate(100, 300, 2, -1, COURT_WIDTH, COURT_HEIGHT);
-		pirate2 = new Pirate(700, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT);
-		levelgate = new LevelGate(10, 10, COURT_WIDTH, COURT_HEIGHT);
-		wind = new Wind(300, 501, 200, 100, 2, 0, COURT_WIDTH, COURT_HEIGHT);
-		land = new Land(300, 1, 200, 500, COURT_WIDTH, COURT_HEIGHT);
-		treasure = new Treasure(600, 700, COURT_WIDTH, COURT_HEIGHT);
+		boat = level.boat;
+		pirate1 = level.pirate1;
+		pirate2 = level.pirate2;
+		pirate3 = level.pirate3;
+		levelgate = level.levelgate;
+		wind = level.wind;
+		land = level.land;
+		treasure = level.treasure;
 		cannonball1 = null;
 		cannonball2 = null;
+		cannonball3 = null;
 
 		playing = true;
-		status.setText("Sailing...                      ");
-		treasureCollected.setText("Treasure Collected: 0                      ");
-		countdown.setText("30 sec");
-		ellapsedTime = 30;
+		treasureCollected.setText("Treasure Collected: 0");
+		countdown.setText(Float.toString(ellapsedTime));
+		ellapsedTime = level.ellapsedTime;
 		tickcounter = 0;
 
 		// Make sure that this component has the .keyboard focus
@@ -183,20 +185,37 @@ public class GameCourt extends JPanel {
 			}
 			
 			boat.move();
-			pirate1.move();
-			pirate2.move();
+			if (pirate1 != null) {
+				pirate1.move();
+			}
+			if (pirate2 != null) {
+				pirate2.move();
+			}
+			if (pirate3 != null) {
+				pirate3.move();
+			}
 			
 			//make the pirate shoot every 5 seconds (142 ticks)
 			tickcounter++;
 			if (tickcounter == 142) {
-				cannonball1 = new CannonBall(pirate1.pos_x, pirate1.pos_y,
-						(boat.pos_x - pirate1.pos_x)/100, 
-						(boat.pos_y - pirate1.pos_y)/100, 
-						COURT_WIDTH, COURT_HEIGHT);
-				cannonball2 = new CannonBall(pirate2.pos_x, pirate2.pos_y,
-						(boat.pos_x - pirate2.pos_x)/100, 
-						(boat.pos_y - pirate2.pos_y)/100, 
-						COURT_WIDTH, COURT_HEIGHT);
+				if (pirate1 != null) {
+					cannonball1 = new CannonBall(pirate1.pos_x, pirate1.pos_y,
+							(boat.pos_x - pirate1.pos_x)/100, 
+							(boat.pos_y - pirate1.pos_y)/100, 
+							COURT_WIDTH, COURT_HEIGHT);
+				}
+				if (pirate2 != null) {
+					cannonball2 = new CannonBall(pirate2.pos_x, pirate2.pos_y,
+							(boat.pos_x - pirate2.pos_x)/100, 
+							(boat.pos_y - pirate2.pos_y)/100, 
+							COURT_WIDTH, COURT_HEIGHT);
+				}
+				if (pirate3 != null) {
+					cannonball3 = new CannonBall(pirate3.pos_x, pirate3.pos_y,
+							(boat.pos_x - pirate3.pos_x)/100, 
+							(boat.pos_y - pirate3.pos_y)/100, 
+							COURT_WIDTH, COURT_HEIGHT);
+				}
 				tickcounter = 0;
 			}
 			//this is necessary because the cannonball is not always present
@@ -204,62 +223,91 @@ public class GameCourt extends JPanel {
 				cannonball1.move();
 				if (boat.intersects(cannonball1)) {
 					playing = false;
-					status.setText("You Were Destroyed!                      ");
 				}
 			}
 			if (cannonball2 != null) {
 				cannonball2.move();
 				if (boat.intersects(cannonball2)) {
 					playing = false;
-					status.setText("You Were Destroyed!                      ");
 				}
 			}
-			// for the possibility of a player cannon
-//			if (boatCannon != null) {
-//				boatCannon.move();
-//				if (boatCannon.intersects(pirate1)) {
-//					destroyed1 = true;
-//					boatCannon = null;
-//				}
-//				if (boatCannon.intersects(pirate2)) {
-//					destroyed2 = true;
-//					boatCannon = null;
-//				}
-//			}
+			if (cannonball3 != null) {
+				cannonball3.move();
+				if (boat.intersects(cannonball3)) {
+					playing = false;
+				}
+			}
 
-			// make the pirate bounce off walls...
-			pirate1.bounce(pirate1.hitWall());
-			// ...and the levelgate
-			pirate1.bounce(pirate1.hitObj(levelgate));
-			// ...and land
-			pirate1.bounce(pirate1.hitObj(land));
+			if (pirate1 != null) {
+				// make the pirate bounce off walls...
+				pirate1.bounce(pirate1.hitWall());
+				// ...and the levelgate
+				pirate1.bounce(pirate1.hitObj(levelgate));
+				// ...and land
+				pirate1.bounce(pirate1.hitObj(land));
+			}
 			
-			//make one of the pirates loop
-			if (pirate2.pos_y == 100) {
-				pirate2.v_y = 2;
-			} else if (pirate2.pos_y == 700) {
-				pirate2.v_y = -2;
+			if (pirate2 != null) {
+				//make one of the pirates loop
+				if (pirate2.pos_y == 100) {
+					pirate2.v_y = 2;
+				} else if (pirate2.pos_y == 700) {
+					pirate2.v_y = -2;
+				}
 			}
 			
 			// check for the game end conditions
 			if (boat.intersects(levelgate) && tIsCol) { 
 				playing = false;
-				status.setText("Next Level!                      ");
+				won = true;
+				Game.levelToPlay ++;
+				
+	        	//bring up a panel that allows the user to quit or go to the next level
+				JFrame levelChange = new JFrame("Level Select");
+				levelChange.setLocation(600, 300);
+				JPanel choiceText = new JPanel();
+				levelChange.add(choiceText, BorderLayout.NORTH);
+				//text to let the player know they won
+				JLabel text = new JLabel();
+				text.setText("You are Victorious! Continue by clicking next.");
+				choiceText.add(text);
+				//continue and quit buttons
+				JPanel choiceButtons = new JPanel();
+				levelChange.add(choiceButtons, BorderLayout.SOUTH);
+				JButton quit = new JButton("Quit");
+				quit.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Game.main(null);
+					}
+				});
+				JButton next = new JButton("Next");
+				next.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Game.play(Game.levelToPlay);
+					}
+				});
+				choiceButtons.add(next);
+				choiceButtons.add(quit);
+				
+				//put the levelChange on the screen
+				levelChange.pack();
+				levelChange.setVisible(true);
+		        
 			} else if (boat.intersects(levelgate)) {
-				status.setText("You must collect the treasure to pass" +
-						"through the level gate!                      ");
-			} else if (boat.intersects(pirate1) || boat.intersects(pirate2)) {
+			} else if (pirate1 != null &&boat.intersects(pirate1)) {
 				playing = false;
-				status.setText("You Collided with a Pirate!                      ");
+			} else if (pirate2 != null && boat.intersects(pirate2)) {
+				playing = false;
+			} else if (pirate3 != null && boat.intersects(pirate3)) {
+				playing = false;
 			} else if (boat.intersects(land)) {
 				playing = false;
-				status.setText("You crashed                      ");
 			} 
 			
 			//check if the boat has collected the treasure
 			if (boat.intersects(treasure)) {
 				tIsCol = true;
-				treasureCollected.setText("Treasure Collected: 1                      ");
+				treasureCollected.setText("Treasure Collected: 1");
 			}
 			
 			// update the display
@@ -279,13 +327,27 @@ public class GameCourt extends JPanel {
 				System.out.println("Internal Error: " + e.getMessage());
 		}
 		g.drawImage(img, 0, 0, null);
-		levelgate.draw(g);
-		pirate1.draw(g);
-		pirate2.draw(g);
-		wind.draw(g);
-		land.draw(g);
-		boat.draw(g);
-		if (!tIsCol) {
+		
+		//draw the images, checking if they are null
+		if (levelgate != null) {
+			levelgate.draw(g);
+		}
+		if (pirate1 != null) {
+			pirate1.draw(g);
+		}
+		if (pirate2 != null) {
+			pirate2.draw(g);
+		}
+		if (wind != null) {
+			wind.draw(g);
+		}
+		if (land != null) {
+			land.draw(g);
+		}
+		if (boat != null) {
+			boat.draw(g);
+		}
+		if (!tIsCol && treasure != null) {
 			treasure.draw(g);
 		}
 		if (cannonball1 != null) {
@@ -294,17 +356,9 @@ public class GameCourt extends JPanel {
 		if (cannonball2 != null) {
 			cannonball2.draw(g);
 		}
-		//draw the boat cannonball if not null
-//		if (boatCannon != null) {
-//			boatCannon.draw(g);
-//		}
-		//draw the pirates if they haven't been destroyed
-//		if (!destroyed1) {
-//			pirate1.draw(g);
-//		} else {cannonball1 = null;}
-//		if (!destroyed2) {
-//			pirate2.draw(g);
-//		} else {cannonball2 = null;}
+		if (cannonball3 != null) {
+			cannonball3.draw(g);
+		}
 		
 	}
 
