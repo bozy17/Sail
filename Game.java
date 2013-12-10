@@ -26,29 +26,46 @@ public class Game implements Runnable {
 	
 	//background of the main home screen
 	public static final String img_file = "sailboat-lake-sunset.jpg";
-	public static BufferedImage img = null;
+	private BufferedImage img = null;
 	
     public void run(){
-        // NOTE : recall that the 'final' keyword notes inmutability
+        // NOTE : recall that the 'final' keyword notes immutability
 		  // even for local variables. 
     	
     	//the home screen
     	final JFrame home = new JFrame("Sail");
-    	home.setLocation(300, 100);
-    	home.setMinimumSize(new Dimension(1100, 800));
     	
+    	//got this from http://stackoverflow.com/questions/9543320/
+    	//how-to-position-the-form-in-the-center-screen
+    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    	int w = home.getSize().width;
+    	int h = home.getSize().height;
+    	int x = (dim.width - w) / 2;
+    	int y = (dim.height - h) / 2;
+    	home.setLocation(x, y);
     	
     	JPanel menu = new JPanel();
-    	home.add(menu);
+    	home.add(menu, BorderLayout.NORTH);
+    	IPanel pic = new IPanel();
+    	home.add(pic, BorderLayout.CENTER);
     	//play
     	JButton play = new JButton("Play");
     	play.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
     			home.setVisible(false);
+    			home.dispose();
     			play(1);
     		}
     	});
     	menu.add(play);
+    	JButton direct = new JButton("Directions");
+    	direct.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			//make a directions page that tells the player how
+    			//the game is played
+    		}
+    	});
+    	menu.add(direct);
     	JButton quit = new JButton("Quit");
     	quit.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
@@ -57,7 +74,10 @@ public class Game implements Runnable {
     	});
     	menu.add(quit);
     	
+    	
+    	
     	home.pack();
+    	home.setLocationRelativeTo(null);
     	home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	home.setVisible(true);
 
@@ -69,7 +89,14 @@ public class Game implements Runnable {
     	// Top-level frame in which game components live
 		  // Be sure to change "TOP LEVEL FRAME" to the name of your game
       final JFrame frame = new JFrame("Sail");
-      frame.setLocation(300,100);
+      
+      //center the screen
+      Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+  	  int w = frame.getSize().width;
+  	  int h = frame.getSize().height;
+  	  int x = (dim.width - w) / 2;
+  	  int y = (dim.height - h) / 2;
+  	  frame.setLocation(x, y);
 
 		// Status panel
       JPanel status_panel = new JPanel(new BorderLayout());
@@ -111,6 +138,7 @@ public class Game implements Runnable {
       
 	      // Put the frame on the screen
 	      frame.pack();
+	      frame.setLocationRelativeTo(null);
 	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	      frame.setVisible(true);
 	
@@ -123,6 +151,7 @@ public class Game implements Runnable {
         
   	      // Put the frame on the screen
   	      frame.pack();
+  	      frame.setLocationRelativeTo(null);
   	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   	      frame.setVisible(true);
   	
@@ -130,17 +159,6 @@ public class Game implements Runnable {
   	      level.reset();
       }
     }
-    
-    public void paintComponent(Graphics g) {
-    	try {
-			if (img == null) {
-				img = ImageIO.read(new File(img_file));
-			} 
-		} catch (IOException e) {
-				System.out.println("Internal Error: " + e.getMessage());
-		}
-		g.drawImage(img, 0, 0, null);
-	}
 
     /*
      * Main method run to start and run the game

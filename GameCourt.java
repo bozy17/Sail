@@ -264,7 +264,15 @@ public class GameCourt extends JPanel {
 				
 	        	//bring up a panel that allows the user to quit or go to the next level
 				JFrame levelChange = new JFrame("Level Select");
-				levelChange.setLocation(600, 300);
+				
+				//center the screen
+				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+				int w = levelChange.getSize().width;
+		  	  	int h = levelChange.getSize().height;
+		  	  	int x = (dim.width - w) / 2;
+		  	  	int y = (dim.height - h) / 2;
+		  	  	levelChange.setLocation(x, y);
+				
 				JPanel choiceText = new JPanel();
 				levelChange.add(choiceText, BorderLayout.NORTH);
 				//text to let the player know they won
@@ -291,6 +299,7 @@ public class GameCourt extends JPanel {
 				
 				//put the levelChange on the screen
 				levelChange.pack();
+				levelChange.setLocationRelativeTo(null);
 				levelChange.setVisible(true);
 		        
 			} else if (boat.intersects(levelgate)) {
