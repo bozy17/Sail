@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 /** 
@@ -20,7 +21,7 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
  * Main class that specifies the frame and widgets of the GUI
  */
 public class Game implements Runnable {
-	
+
 	//keeps track of the level to play next
 	public static int levelToPlay = 1;
 	
@@ -61,8 +62,7 @@ public class Game implements Runnable {
     	JButton direct = new JButton("Directions");
     	direct.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
-    			//make a directions page that tells the player how
-    			//the game is played
+    			directions();
     		}
     	});
     	menu.add(direct);
@@ -82,6 +82,55 @@ public class Game implements Runnable {
     	home.setVisible(true);
 
         
+    }
+    
+    //get the directions for the game
+    public static void directions() {
+    	
+    	final JFrame frame = new JFrame("Directions");
+    	
+    	//center on screen
+    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    	int w = frame.getSize().width;
+    	int h = frame.getSize().height;
+    	int x = (dim.width - w) / 2;
+    	int y = (dim.height - h) / 2;
+    	frame.setLocation(x, y);
+    	  
+    	String message = "<html><body>You are a sailboat lost at sea after a terrible storm…you must navigate through the" + "<br>" +
+	    		"murky and pirate infested waters on your journey back home by USING THE ARROW" + "<br>" +
+	    		"KEYS.  You must pilot your sailboat (White Ship), pick up the treasure (Treasure" + "<br>" +
+	    		"Chest) and then sail through the level gate (Yellow Circle) to pass each level.  If you " + "<br>" +
+	    		"do not pick up the magical treasure, the level gates will not be open for you.  Be on" + "<br>" +
+	    		"the lookout for pirates (Red Ships), if you crash into them or they shoot you with" + "<br>" +
+	    		"their cannons (Black Cannonballs), you will be destroyed.  Also, make sure you" + "<br>" +
+	    		"avoid any land (Green) because you will crash if you run directly into it." + "<br>" +
+	    		"Miscellaneous wind gusts (Outlined Black) will either aid you or hinder you on your" + "<br>" +
+	    		"journey, so either avoid them or don’t…does the risk outweigh the rewards?   Take" + "<br>" +
+	    		"in to account all of your obstacles, and don’t forget to watch the timer, as you only" + "<br>" +
+	    		"have a certain amount of time to navigate through each level.  Good luck…and" + "<br>" +
+	    		"smooth sailing, captain!</body></html>";
+    	
+	    JLabel directions = new JLabel();
+	    directions.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    frame.add(directions, BorderLayout.NORTH);
+	    directions.setText(message);
+	    
+	    JPanel ok_panel = new JPanel();
+	    JButton ok = new JButton("Ok");
+	    ok.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			frame.setVisible(false);
+    			frame.dispose();
+    		}
+    	});
+	    ok_panel.add(ok, BorderLayout.EAST);
+	    frame.add(ok_panel, BorderLayout.SOUTH);
+	    
+	   // Put the frame on the screen
+	      frame.pack();
+	      frame.setLocationRelativeTo(null);
+	      frame.setVisible(true);
     }
     
     //play the game

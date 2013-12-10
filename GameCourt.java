@@ -277,7 +277,7 @@ public class GameCourt extends JPanel {
 				levelChange.add(choiceText, BorderLayout.NORTH);
 				//text to let the player know they won
 				JLabel text = new JLabel();
-				text.setText("You are Victorious! Continue by clicking next.");
+				text.setText("You are Victorious!  Continue by clicking next.");
 				choiceText.add(text);
 				//continue and quit buttons
 				JPanel choiceButtons = new JPanel();
