@@ -49,13 +49,13 @@ public class GameCourt extends JPanel {
 	
 	private JLabel countdown;        //timer to keep the players score
 	private float ellapsedTime;
+	public static float scoreTracker;
 	
 	private int tickcounter = 0;     //count the number of ticks that have happened
 
 	
 	public boolean playing = false;  // whether the game is running
 	public boolean won = false;
-	private JLabel status;           // Current status text (i.e. Running...)
 	
 	// Game constants
 	private int COURT_WIDTH = 800;
@@ -152,6 +152,60 @@ public class GameCourt extends JPanel {
 		// Make sure that this component has the .keyboard focus
 		requestFocusInWindow();
 	}
+	
+	//a JFrame pop up when you are destroyed
+	public static void destroyed() {
+		//bring up a panel that allows the user to quit or go to the next level
+		JFrame levelChange = new JFrame("Destoyed");
+		
+		Game.currentPop = levelChange;
+		
+		//center the screen
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		int w = levelChange.getSize().width;
+  	  	int h = levelChange.getSize().height;
+  	  	int x = (dim.width - w) / 2;
+  	  	int y = (dim.height - h) / 2;
+  	  	levelChange.setLocation(x, y);
+		
+		JPanel choiceText = new JPanel();
+		levelChange.add(choiceText, BorderLayout.NORTH);
+		//text to let the player know they won
+		JLabel text = new JLabel();
+		text.setText("You have been destroyed!  Try again!");
+		choiceText.add(text);
+		
+		//continue and quit buttons
+		JPanel choiceButtons = new JPanel();
+		levelChange.add(choiceButtons, BorderLayout.SOUTH);
+		JButton quit = new JButton("Quit");
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Game.currentPop.setVisible(false);
+    			Game.currentPop.dispose();
+				Game.current.setVisible(false);
+				Game.current.dispose();
+				Game.main(null);
+			}
+		});
+		JButton next = new JButton("Retry");
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Game.current.setVisible(false);
+				Game.current.dispose();
+				Game.currentPop.setVisible(false);
+    			Game.currentPop.dispose();
+				Game.play(Game.levelToPlay);
+			}
+		});
+		choiceButtons.add(next);
+		choiceButtons.add(quit);
+		
+		//put the levelChange on the screen
+		levelChange.pack();
+		levelChange.setLocationRelativeTo(null);
+		levelChange.setVisible(true);
+	}
 
     /**
      * This method is called every time the timer defined
@@ -161,9 +215,11 @@ public class GameCourt extends JPanel {
 		if (playing) {
 			// advance the boat and pirate in their
 			// current direction.
-			if (boat.intersects(wind)) {
-				boat.v_x = wind.v_x;
-				boat.v_y = wind.v_y;
+			if (wind != null) {
+				if (boat.intersects(wind)) {
+					boat.v_x = wind.v_x;
+					boat.v_y = wind.v_y;
+				}
 			}
 			
 			//change the direction the boat faces
@@ -182,6 +238,61 @@ public class GameCourt extends JPanel {
 			if (ellapsedTime <= 0) {
 				playing = false;
 				countdown.setText("0 sec");
+				scoreTracker += 60;
+				
+				final JFrame frame = new JFrame();
+		    	  
+				Game.currentPop = frame;
+				
+				//center on screen
+		    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		    	int w = frame.getSize().width;
+		    	int h = frame.getSize().height;
+		    	int x = (dim.width - w) / 2;
+		    	int y = (dim.height - h) / 2;
+		    	frame.setLocation(x, y);
+		    	  
+		    	JPanel choice = new JPanel();
+		    	frame.add(choice, BorderLayout.NORTH);
+		    	  //text to let the player know they are victorious
+		    	  JLabel text = new JLabel();
+		    	  text.setText("<html><body>You have run out of time...<br>" +
+		    	  		"Your score is " + Float.toString(scoreTracker) + "<br>" +
+		    	  		"Would you like to play again?");
+		    	  //reset the score tracker
+		    	  scoreTracker = 0;
+		    	  choice.add(text);
+		    	  //Restart and quit buttons
+		    	  JPanel buttons = new JPanel();
+		    	  frame.add(buttons, BorderLayout.SOUTH);
+		    	  JButton quit = new JButton("Quit");
+		    	  quit.addActionListener(new ActionListener() {
+		    		  public void actionPerformed(ActionEvent e) {
+		    			  Game.current.setVisible(false);
+						  Game.current.dispose();
+						  Game.currentPop.setVisible(false);
+			    	      Game.currentPop.dispose();
+		    			  Game.main(null);
+		    		  }
+		    	  });
+		    	  JButton replay = new JButton("Replay");
+		    	  replay.addActionListener(new ActionListener() {
+		    		  public void actionPerformed(ActionEvent e) {
+		    			  Game.current.setVisible(false);
+						  Game.current.dispose();
+						  Game.currentPop.setVisible(false);
+						  Game.currentPop.dispose();
+		    			  Game.levelToPlay = 1;
+		    			  Game.play(Game.levelToPlay);
+		    		  }
+		    	  });
+		    	  buttons.add(replay);
+		    	  buttons.add(quit);
+		    	  
+		    	  //put the frame on the screen
+		    	  frame.pack();
+		    	  frame.setLocationRelativeTo(null);
+		    	  frame.setVisible(true);
 			}
 			
 			boat.move();
@@ -200,20 +311,20 @@ public class GameCourt extends JPanel {
 			if (tickcounter == 142) {
 				if (pirate1 != null) {
 					cannonball1 = new CannonBall(pirate1.pos_x, pirate1.pos_y,
-							(boat.pos_x - pirate1.pos_x)/100, 
-							(boat.pos_y - pirate1.pos_y)/100, 
+							((boat.pos_x - pirate1.pos_x)/100) * 2, 
+							((boat.pos_y - pirate1.pos_y)/100) * 2, 
 							COURT_WIDTH, COURT_HEIGHT);
 				}
 				if (pirate2 != null) {
 					cannonball2 = new CannonBall(pirate2.pos_x, pirate2.pos_y,
-							(boat.pos_x - pirate2.pos_x)/100, 
-							(boat.pos_y - pirate2.pos_y)/100, 
+							((boat.pos_x - pirate2.pos_x)/100) * 2, 
+							((boat.pos_y - pirate2.pos_y)/100) * 2, 
 							COURT_WIDTH, COURT_HEIGHT);
 				}
 				if (pirate3 != null) {
 					cannonball3 = new CannonBall(pirate3.pos_x, pirate3.pos_y,
-							(boat.pos_x - pirate3.pos_x)/100, 
-							(boat.pos_y - pirate3.pos_y)/100, 
+							((boat.pos_x - pirate3.pos_x)/100) * 4, 
+							((boat.pos_y - pirate3.pos_y)/100) * 4, 
 							COURT_WIDTH, COURT_HEIGHT);
 				}
 				tickcounter = 0;
@@ -223,28 +334,34 @@ public class GameCourt extends JPanel {
 				cannonball1.move();
 				if (boat.intersects(cannonball1)) {
 					playing = false;
+					destroyed();
 				}
 			}
 			if (cannonball2 != null) {
 				cannonball2.move();
 				if (boat.intersects(cannonball2)) {
 					playing = false;
+					destroyed();
 				}
 			}
 			if (cannonball3 != null) {
 				cannonball3.move();
 				if (boat.intersects(cannonball3)) {
 					playing = false;
+					destroyed();
 				}
 			}
-
+			
+			//the different conditions for the pirates
 			if (pirate1 != null) {
 				// make the pirate bounce off walls...
 				pirate1.bounce(pirate1.hitWall());
 				// ...and the levelgate
 				pirate1.bounce(pirate1.hitObj(levelgate));
 				// ...and land
-				pirate1.bounce(pirate1.hitObj(land));
+				if (land != null) {
+					pirate1.bounce(pirate1.hitObj(land));
+				}
 			}
 			
 			if (pirate2 != null) {
@@ -256,14 +373,32 @@ public class GameCourt extends JPanel {
 				}
 			}
 			
+			if (pirate3 != null) {
+				//make the pirate follow the player
+				pirate3.v_x = ((boat.pos_x - pirate3.pos_x)/100) * 2;
+				pirate3.v_y = ((boat.pos_y - pirate3.pos_y)/100) * 2;
+				
+				// make the pirate bounce off walls...
+				pirate1.bounce(pirate1.hitWall());
+				// ...and the levelgate
+				pirate1.bounce(pirate1.hitObj(levelgate));
+				// ...and land
+				if (land != null) {
+					pirate1.bounce(pirate1.hitObj(land));
+				}
+			}
+
 			// check for the game end conditions
 			if (boat.intersects(levelgate) && tIsCol) { 
 				playing = false;
-				won = true;
 				Game.levelToPlay ++;
+				scoreTracker += 60 - ellapsedTime;
+				System.out.println(Float.toString(scoreTracker));
 				
 	        	//bring up a panel that allows the user to quit or go to the next level
 				JFrame levelChange = new JFrame("Level Select");
+				
+				Game.currentPop = levelChange;
 				
 				//center the screen
 				Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -285,12 +420,20 @@ public class GameCourt extends JPanel {
 				JButton quit = new JButton("Quit");
 				quit.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						Game.current.setVisible(false);
+						Game.current.dispose();
+						Game.currentPop.setVisible(false);
+		    			Game.currentPop.dispose();
 						Game.main(null);
 					}
 				});
 				JButton next = new JButton("Next");
 				next.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						Game.current.setVisible(false);
+						Game.current.dispose();
+						Game.currentPop.setVisible(false);
+		    			Game.currentPop.dispose();
 						Game.play(Game.levelToPlay);
 					}
 				});
@@ -302,15 +445,18 @@ public class GameCourt extends JPanel {
 				levelChange.setLocationRelativeTo(null);
 				levelChange.setVisible(true);
 		        
-			} else if (boat.intersects(levelgate)) {
 			} else if (pirate1 != null &&boat.intersects(pirate1)) {
 				playing = false;
+				destroyed();
 			} else if (pirate2 != null && boat.intersects(pirate2)) {
 				playing = false;
+				destroyed();
 			} else if (pirate3 != null && boat.intersects(pirate3)) {
 				playing = false;
-			} else if (boat.intersects(land)) {
+				destroyed();
+			} else if (land != null && boat.intersects(land)) {
 				playing = false;
+				destroyed();
 			} 
 			
 			//check if the boat has collected the treasure
@@ -346,6 +492,9 @@ public class GameCourt extends JPanel {
 		}
 		if (pirate2 != null) {
 			pirate2.draw(g);
+		}
+		if (pirate3 != null) {
+			pirate3.draw(g);
 		}
 		if (wind != null) {
 			wind.draw(g);

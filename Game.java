@@ -25,6 +25,11 @@ public class Game implements Runnable {
 	//keeps track of the level to play next
 	public static int levelToPlay = 1;
 	
+	//keeps track of the current game window (for disposing purposes)
+	public static JFrame current;
+	//keeps track of the current pop up window (for disposing purposes)
+	public static JFrame currentPop;
+	
 	//background of the main home screen
 	public static final String img_file = "sailboat-lake-sunset.jpg";
 	private BufferedImage img = null;
@@ -35,6 +40,8 @@ public class Game implements Runnable {
     	
     	//the home screen
     	final JFrame home = new JFrame("Sail");
+    	
+    	current = home;
     	
     	//got this from http://stackoverflow.com/questions/9543320/
     	//how-to-position-the-form-in-the-center-screen
@@ -49,12 +56,14 @@ public class Game implements Runnable {
     	home.add(menu, BorderLayout.NORTH);
     	IPanel pic = new IPanel();
     	home.add(pic, BorderLayout.CENTER);
-    	//play
-    	JButton play = new JButton("Play");
+    	
+    	//the different buttons on the home screen
+    	final JButton play = new JButton("Play");
     	play.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
     			home.setVisible(false);
     			home.dispose();
+    			GameCourt.scoreTracker = 0;
     			play(1);
     		}
     	});
@@ -81,14 +90,10 @@ public class Game implements Runnable {
     	});
     	menu.add(quit);
     	
-    	
-    	
     	home.pack();
     	home.setLocationRelativeTo(null);
     	home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	home.setVisible(true);
-
-        
     }
     
     public static void coolFeatures() {
@@ -155,8 +160,10 @@ public class Game implements Runnable {
 	    		"Miscellaneous wind gusts (Outlined Black) will either aid you or hinder you on your" + "<br>" +
 	    		"journey, so either avoid them or don’t…does the risk outweigh the rewards?   Take" + "<br>" +
 	    		"in to account all of your obstacles, and don’t forget to watch the timer, as you only" + "<br>" +
-	    		"have a certain amount of time to navigate through each level.  Good luck…and" + "<br>" +
-	    		"smooth sailing, captain!</body></html>";
+	    		"have a certain amount of time to navigate through each level.  Your objective is to" + "<br>" +
+	    		"make it through all of the levels in the fastest amount of time possible.  Your score" + "<br>" +
+	    		"at the end will be the total amount of time it took for you to navigate the levels." + "<br>" +
+	    		"  Good luck…and smooth sailing, captain!</body></html>";
     	
 	    JLabel directions = new JLabel();
 	    directions.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -186,6 +193,8 @@ public class Game implements Runnable {
 		  // Be sure to change "TOP LEVEL FRAME" to the name of your game
       final JFrame frame = new JFrame("Sail");
       
+      current = frame;
+      
       //center the screen
       Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
   	  int w = frame.getSize().width;
@@ -212,21 +221,11 @@ public class Game implements Runnable {
       		null,
       		new Pirate(700, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT),
       		null,
-      		new LevelGate(790, 10, COURT_WIDTH, COURT_HEIGHT),
-      		new Wind(0, 150, 200, 400, 0, 6, COURT_WIDTH, COURT_HEIGHT),
+      		new LevelGate(775, 10, COURT_WIDTH, COURT_HEIGHT),
+      		new Wind(10, 150, 280, 500, 0, 6, COURT_WIDTH, COURT_HEIGHT),
       		new Land(300, 300, 200, 200, COURT_WIDTH, COURT_HEIGHT),
       		new Treasure(100, 700, COURT_WIDTH, COURT_HEIGHT),
       		60, COURT_WIDTH, COURT_HEIGHT);
-      Level level2 = new Level(new Boat(700, 100, COURT_WIDTH, COURT_HEIGHT),
-      		new Pirate(100, 300, 2, -1, COURT_WIDTH, COURT_HEIGHT),
-      		new Pirate(700, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT),
-      		null,
-      		new LevelGate(10, 10, COURT_WIDTH, COURT_HEIGHT),
-      		new Wind(300, 501, 200, 100, 2, 0, COURT_WIDTH, COURT_HEIGHT),
-      		new Land(300, 1, 200, 500, COURT_WIDTH, COURT_HEIGHT),
-      		new Treasure(600, 700, COURT_WIDTH, COURT_HEIGHT),
-      		30, COURT_WIDTH, COURT_HEIGHT);
-      
       if (num == 1) {
 	      final GameCourt level = new GameCourt(treasureCollected,
 	      		countdown, level1);
@@ -240,7 +239,18 @@ public class Game implements Runnable {
 	
 	      // Start game
 	      level.reset();
-      } else if (num == 2) {
+      } 
+      
+      Level level2 = new Level(new Boat(700, 100, COURT_WIDTH, COURT_HEIGHT),
+      		new Pirate(100, 300, 2, -1, COURT_WIDTH, COURT_HEIGHT),
+      		new Pirate(700, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT),
+      		null,
+      		new LevelGate(10, 10, COURT_WIDTH, COURT_HEIGHT),
+      		new Wind(300, 501, 200, 100, 2, 0, COURT_WIDTH, COURT_HEIGHT),
+      		new Land(300, 1, 200, 500, COURT_WIDTH, COURT_HEIGHT),
+      		new Treasure(600, 700, COURT_WIDTH, COURT_HEIGHT),
+      		60, COURT_WIDTH, COURT_HEIGHT);
+      if (num == 2) {
     	  final GameCourt level = new GameCourt(treasureCollected,
   	      		countdown, level2);
   	      frame.add(level, BorderLayout.CENTER);
@@ -253,8 +263,157 @@ public class Game implements Runnable {
   	
   	      // Start game
   	      level.reset();
+      } 
+      
+      Level level3 = new Level(new Boat(10, 770, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(100, 100, 3, -3, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(700, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT),
+    		  null,
+    		  new LevelGate(780, 10, COURT_WIDTH, COURT_HEIGHT),
+    		  new Wind(200, 200, 400, 400, -7, 0, COURT_WIDTH, COURT_HEIGHT),
+    		  new Land(1, 600, 600, 140, COURT_WIDTH, COURT_HEIGHT),
+    		  new Treasure(10, 570, COURT_WIDTH, COURT_HEIGHT),
+    		  60, COURT_WIDTH, COURT_HEIGHT);
+      if (num == 3) {
+    	  final GameCourt level = new GameCourt(treasureCollected,
+    	      		countdown, level3);
+    	      frame.add(level, BorderLayout.CENTER);
+          
+    	      // Put the frame on the screen
+    	      frame.pack();
+    	      frame.setLocationRelativeTo(null);
+    	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	      frame.setVisible(true);
+    	
+    	      // Start game
+    	      level.reset();
       }
+      
+      Level level4 = new Level(new Boat(775, 775, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(100, 500, -2, 1, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(600, 700, 0, -2, COURT_WIDTH, COURT_HEIGHT),
+    		  null,
+    		  new LevelGate(10, 10, COURT_WIDTH, COURT_HEIGHT),
+    		  new Wind(441, 30, 350, 400, 0, 7, COURT_WIDTH, COURT_HEIGHT),
+    		  new Land(30, 30, 400, 400, COURT_WIDTH, COURT_HEIGHT),
+    		  new Treasure(775, 10, COURT_WIDTH, COURT_HEIGHT),
+    		  60, COURT_WIDTH, COURT_HEIGHT);
+    
+    if (num == 4) {
+  	  final GameCourt level = new GameCourt(treasureCollected,
+  	      		countdown, level4);
+  	      frame.add(level, BorderLayout.CENTER);
+        
+  	      // Put the frame on the screen
+  	      frame.pack();
+  	      frame.setLocationRelativeTo(null);
+  	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  	      frame.setVisible(true);
+  	
+  	      // Start game
+  	      level.reset();
     }
+    
+    Level level5 = new Level(new Boat(10, 10, COURT_WIDTH, COURT_HEIGHT),
+  		  null,
+  		  null,
+  		  null,
+  		  new LevelGate(10, 775, COURT_WIDTH, COURT_HEIGHT),
+  		  null,
+  		  new Land(40, 40, 715, 715, COURT_WIDTH, COURT_HEIGHT),
+  		  new Treasure(765, 770, COURT_WIDTH, COURT_HEIGHT),
+  		  60, COURT_WIDTH, COURT_HEIGHT);
+  
+    if (num == 5) {
+	  final GameCourt level = new GameCourt(treasureCollected,
+	      		countdown, level5);
+	      frame.add(level, BorderLayout.CENTER);
+      
+	      // Put the frame on the screen
+	      frame.pack();
+	      frame.setLocationRelativeTo(null);
+	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	      frame.setVisible(true);
+	
+	      // Start game
+	      level.reset();
+    }
+    
+    Level level6 = new Level(new Boat(10, 10, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(400, 400, -4, 0, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(600, 400, 0, -2, COURT_WIDTH, COURT_HEIGHT),
+    		  new Pirate(200, 400, 0, -1, COURT_WIDTH, COURT_HEIGHT),
+    		  new LevelGate(765, 765, COURT_WIDTH, COURT_HEIGHT),
+    		  null,
+    		  null,
+    		  new Treasure(760, 10, COURT_WIDTH, COURT_HEIGHT),
+    		  60, COURT_WIDTH, COURT_HEIGHT);
+    
+      if (num == 6) {
+  	  final GameCourt level = new GameCourt(treasureCollected,
+  	      		countdown, level6);
+  	      frame.add(level, BorderLayout.CENTER);
+        
+  	      // Put the frame on the screen
+  	      frame.pack();
+  	      frame.setLocationRelativeTo(null);
+  	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  	      frame.setVisible(true);
+  	
+  	      // Start game
+  	      level.reset();
+      }
+      
+      if (num == 7) {
+    	  final JFrame Win = new JFrame();
+    	  
+    	  currentPop = Win;
+    	  
+    	  Win.setLocation(x, y);
+    	  
+    	  JPanel choice = new JPanel();
+    	  Win.add(choice, BorderLayout.NORTH);
+    	  //text to let the player know they are victorious
+    	  JLabel text = new JLabel();
+    	  text.setText("<html><body><center>You have beaten the Game!<br>" +
+    	  		"Your score is " + Float.toString(GameCourt.scoreTracker) + "<br>" +
+    	  		"Would you like to play again?</center></body></html>");
+    	  choice.add(text);
+    	  //Restart and quit buttons
+    	  JPanel buttons = new JPanel();
+    	  Win.add(buttons, BorderLayout.SOUTH);
+    	  JButton quit = new JButton("Quit");
+    	  quit.addActionListener(new ActionListener() {
+    		  public void actionPerformed(ActionEvent e) {
+    			  currentPop.setVisible(false);
+    			  currentPop.dispose();
+    			  current.setVisible(false);
+    			  current.dispose();
+    			  GameCourt.scoreTracker = 0;
+    			  Game.main(null);
+    		  }
+    	  });
+    	  JButton replay = new JButton("Replay");
+    	  replay.addActionListener(new ActionListener() {
+    		  public void actionPerformed(ActionEvent e) {
+    			  currentPop.setVisible(false);
+    			  currentPop.dispose();
+    			  current.setVisible(false);
+    			  current.dispose();
+    			  GameCourt.scoreTracker = 0;
+    			  Game.levelToPlay = 1;
+    			  Game.play(Game.levelToPlay);
+    		  }
+    	  });
+    	  buttons.add(replay);
+    	  buttons.add(quit);
+    	  
+    	  //put the frame on the screen
+    	  Win.pack();
+    	  Win.setLocationRelativeTo(null);
+    	  Win.setVisible(true);
+      }
+}
 
     /*
      * Main method run to start and run the game
