@@ -66,6 +66,13 @@ public class Game implements Runnable {
     		}
     	});
     	menu.add(direct);
+    	JButton coolFeats = new JButton("Cool Features");
+    	coolFeats.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			coolFeatures();
+    		}
+    	});
+    	menu.add(coolFeats);
     	JButton quit = new JButton("Quit");
     	quit.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
@@ -84,6 +91,46 @@ public class Game implements Runnable {
         
     }
     
+    public static void coolFeatures() {
+    	
+    	final JFrame frame = new JFrame("Cool Features");
+    	
+    	//center on screen
+    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    	int w = frame.getSize().width;
+    	int h = frame.getSize().height;
+    	int x = (dim.width - w) / 2;
+    	int y = (dim.height - h) / 2;
+    	frame.setLocation(x, y);
+    	
+    	String coolness = "<html><body>There are a number of cool features in this game:<br><br>" +
+    			"1) A level system that easily allows for input of new levels and different difficulty levels.<br>" +
+    			"2) A weapon system for the pirates that incrementally shoots at the boat<br>" +
+    			"3) Wind is present, helping or hurting the player by pushing the boat in a certain direction<br>" +
+    			"4) Pirates are programmed individually with AI that allows them to bounce, loop, or follow the player</body></html>";
+    	
+    	JLabel cool = new JLabel();
+	    cool.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    frame.add(cool, BorderLayout.NORTH);
+	    cool.setText(coolness);
+	    
+	    JPanel cool_panel = new JPanel();
+	    JButton ok = new JButton("Ok");
+	    ok.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			frame.setVisible(false);
+    			frame.dispose();
+    		}
+    	});
+	    cool_panel.add(ok, BorderLayout.EAST);
+	    frame.add(cool_panel, BorderLayout.SOUTH);
+	    
+	   // Put the frame on the screen
+	      frame.pack();
+	      frame.setLocationRelativeTo(null);
+	      frame.setVisible(true);
+    }
+    
     //get the directions for the game
     public static void directions() {
     	
@@ -96,7 +143,7 @@ public class Game implements Runnable {
     	int x = (dim.width - w) / 2;
     	int y = (dim.height - h) / 2;
     	frame.setLocation(x, y);
-    	  
+    	
     	String message = "<html><body>You are a sailboat lost at sea after a terrible storm…you must navigate through the" + "<br>" +
 	    		"murky and pirate infested waters on your journey back home by USING THE ARROW" + "<br>" +
 	    		"KEYS.  You must pilot your sailboat (White Ship), pick up the treasure (Treasure" + "<br>" +
