@@ -49,7 +49,7 @@ public class GameCourt extends JPanel {
 	
 	private JLabel countdown;        //timer to keep the players score
 	private float ellapsedTime;
-	public static float scoreTracker;
+	public static float scoreTracker = 175;
 	
 	private int tickcounter = 0;     //count the number of ticks that have happened
 

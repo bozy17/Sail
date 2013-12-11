@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class IPanel extends JPanel {
 
-	private final String img_file = "Sail3.png";
+	private final String img_file = "Sail.png";
 	private BufferedImage img = null;
 	
 	public IPanel () {

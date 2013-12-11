@@ -82,6 +82,17 @@ public class Game implements Runnable {
     		}
     	});
     	menu.add(coolFeats);
+    	JButton highScore = new JButton("High Score");
+    	highScore.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) {
+    			try {
+					highScore();
+				} catch (IOException ex) {
+					System.out.println("Internal Error: " + ex.getMessage());
+				}
+    		}
+    	});
+    	menu.add(highScore);
     	JButton quit = new JButton("Quit");
     	quit.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) {
@@ -96,6 +107,98 @@ public class Game implements Runnable {
     	home.setVisible(true);
     }
     
+    public static void newHighScore() throws IOException {
+    	final JFrame frame = new JFrame("New High Score");
+		
+    	currentPop = frame;
+    	
+		//center on screen
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		int w = frame.getSize().width;
+		int h = frame.getSize().height;
+		int x = (dim.width - w) / 2;
+		int y = (dim.height - h) / 2;
+		frame.setLocation(x, y);
+		
+		HighScore hs = new HighScore("scores.txt");
+		
+		hs.setHighScore(GameCourt.scoreTracker);
+		
+		String scoreTell = "New High Score!: " +
+				Float.toString(GameCourt.scoreTracker) + " sec";
+		
+		JLabel cool = new JLabel();
+	    cool.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    frame.add(cool, BorderLayout.NORTH);
+	    cool.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    cool.setText(scoreTell);
+	    
+	    JPanel cool_panel = new JPanel();
+	    JButton ok = new JButton("Ok");
+	    ok.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				current.setVisible(false);
+				current.dispose();
+				currentPop.setVisible(false);
+				currentPop.dispose();
+				frame.setVisible(false);
+				frame.dispose();
+				Game.main(null);
+			}
+		});
+	    cool_panel.add(ok, BorderLayout.EAST);
+	    frame.add(cool_panel, BorderLayout.SOUTH);
+	    
+	   // Put the frame on the screen
+	      frame.pack();
+	      frame.setLocationRelativeTo(null);
+	      frame.setVisible(true);
+    }
+    
+    public static void highScore() throws IOException {
+    	 final JFrame frame = new JFrame("High Score");
+    		
+    		//center on screen
+    		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    		int w = frame.getSize().width;
+    		int h = frame.getSize().height;
+    		int x = (dim.width - w) / 2;
+    		int y = (dim.height - h) / 2;
+    		frame.setLocation(x, y);
+    		
+    		HighScore hs = null;
+    		try {
+    			hs = new HighScore("scores.txt");
+    		} catch (IOException e) {
+				System.out.println("Internal Error: " + e.getMessage());
+
+    		}
+    		
+    		String scoreTell = "The High Score is Currently: " +
+    				Float.toString(hs.getHighScore()) + " sec";
+    		
+    		JLabel cool = new JLabel();
+    	    cool.setBorder(new EmptyBorder(10, 10, 10, 10));
+    	    frame.add(cool, BorderLayout.NORTH);
+    	    cool.setText(scoreTell);
+    	    
+    	    JPanel cool_panel = new JPanel();
+    	    JButton ok = new JButton("Ok");
+    	    ok.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    				frame.setVisible(false);
+    				frame.dispose();
+    			}
+    		});
+    	    cool_panel.add(ok, BorderLayout.EAST);
+    	    frame.add(cool_panel, BorderLayout.SOUTH);
+    	    
+    	   // Put the frame on the screen
+    	      frame.pack();
+    	      frame.setLocationRelativeTo(null);
+    	      frame.setVisible(true);
+    }
+   
     public static void coolFeatures() {
     	
     	final JFrame frame = new JFrame("Cool Features");
@@ -111,8 +214,11 @@ public class Game implements Runnable {
     	String coolness = "<html><body>There are a number of cool features in this game:<br><br>" +
     			"1) A level system that easily allows for input of new levels and different difficulty levels.<br>" +
     			"2) A weapon system for the pirates that incrementally shoots at the boat<br>" +
-    			"3) Wind is present, helping or hurting the player by pushing the boat in a certain direction<br>" +
-    			"4) Pirates are programmed individually with AI that allows them to bounce, loop, or follow the player</body></html>";
+    			"3) A high score system that keeps track of the alltime high score even after the game<br>" +
+    			"has closed<br>" +
+    			"4) Wind is present, helping or hurting the player by pushing the boat in a certain direction<br>" +
+    			"5) Pirates are programmed individually with AI that allows them to bounce, loop, or<br>" +
+    			"follow the player</body></html>";
     	
     	JLabel cool = new JLabel();
 	    cool.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -365,53 +471,72 @@ public class Game implements Runnable {
       }
       
       if (num == 7) {
-    	  final JFrame Win = new JFrame();
     	  
-    	  currentPop = Win;
+    	  float currentHigh = 0;
+		try {
+			HighScore HS = null;
+			HS = new HighScore("scores.txt");
+			currentHigh = HS.getHighScore();
+		} catch (IOException e1) {
+			System.out.println("Internal Error: " + e1.getMessage());
+		}
+    	 
+		if (GameCourt.scoreTracker < currentHigh) {
+    		  try {
+				newHighScore();
+			} catch (IOException e1) {
+				System.out.println("Internal Error: " + e1.getMessage());
+			}
+    	 } else {
     	  
-    	  Win.setLocation(x, y);
-    	  
-    	  JPanel choice = new JPanel();
-    	  Win.add(choice, BorderLayout.NORTH);
-    	  //text to let the player know they are victorious
-    	  JLabel text = new JLabel();
-    	  text.setText("<html><body><center>You have beaten the Game!<br>" +
-    	  		"Your score is " + Float.toString(GameCourt.scoreTracker) + "<br>" +
-    	  		"Would you like to play again?</center></body></html>");
-    	  choice.add(text);
-    	  //Restart and quit buttons
-    	  JPanel buttons = new JPanel();
-    	  Win.add(buttons, BorderLayout.SOUTH);
-    	  JButton quit = new JButton("Quit");
-    	  quit.addActionListener(new ActionListener() {
-    		  public void actionPerformed(ActionEvent e) {
-    			  currentPop.setVisible(false);
-    			  currentPop.dispose();
-    			  current.setVisible(false);
-    			  current.dispose();
-    			  GameCourt.scoreTracker = 0;
-    			  Game.main(null);
-    		  }
-    	  });
-    	  JButton replay = new JButton("Replay");
-    	  replay.addActionListener(new ActionListener() {
-    		  public void actionPerformed(ActionEvent e) {
-    			  currentPop.setVisible(false);
-    			  currentPop.dispose();
-    			  current.setVisible(false);
-    			  current.dispose();
-    			  GameCourt.scoreTracker = 0;
-    			  Game.levelToPlay = 1;
-    			  Game.play(Game.levelToPlay);
-    		  }
-    	  });
-    	  buttons.add(replay);
-    	  buttons.add(quit);
-    	  
-    	  //put the frame on the screen
-    	  Win.pack();
-    	  Win.setLocationRelativeTo(null);
-    	  Win.setVisible(true);
+	    	  final JFrame Win = new JFrame();
+	    	  
+	    	  currentPop = Win;
+	    	  
+	    	  Win.setLocation(x, y);
+	    	  
+	    	  JPanel choice = new JPanel();
+	    	  Win.add(choice, BorderLayout.NORTH);
+	    	  //text to let the player know they are victorious
+	    	  JLabel text = new JLabel();
+	    	  text.setText("<html><body><center>You have beaten the Game!<br>" +
+	    	  		"Your score is " + Float.toString(GameCourt.scoreTracker) + "<br>" +
+	    	  		"Would you like to play again?</center></body></html>");
+	    	  choice.add(text);
+	    	  //Restart and quit buttons
+	    	  JPanel buttons = new JPanel();
+	    	  Win.add(buttons, BorderLayout.SOUTH);
+	    	  JButton quit = new JButton("Quit");
+	    	  quit.addActionListener(new ActionListener() {
+	    		  public void actionPerformed(ActionEvent e) {
+	    			  currentPop.setVisible(false);
+	    			  currentPop.dispose();
+	    			  current.setVisible(false);
+	    			  current.dispose();
+	    			  GameCourt.scoreTracker = 0;
+	    			  Game.main(null);
+	    		  }
+	    	  });
+	    	  JButton replay = new JButton("Replay");
+	    	  replay.addActionListener(new ActionListener() {
+	    		  public void actionPerformed(ActionEvent e) {
+	    			  currentPop.setVisible(false);
+	    			  currentPop.dispose();
+	    			  current.setVisible(false);
+	    			  current.dispose();
+	    			  GameCourt.scoreTracker = 0;
+	    			  Game.levelToPlay = 1;
+	    			  Game.play(Game.levelToPlay);
+	    		  }
+	    	  });
+	    	  buttons.add(replay);
+	    	  buttons.add(quit);
+	    	  
+	    	  //put the frame on the screen
+	    	  Win.pack();
+	    	  Win.setLocationRelativeTo(null);
+	    	  Win.setVisible(true);
+    	  }
       }
 }
 
